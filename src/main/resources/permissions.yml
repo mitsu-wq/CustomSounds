@@ -1,0 +1,7 @@
+permissions:
+  customsounds.admin:
+    default: op
+    children:
+      customsounds.play: true
+      customsounds.play3d: true
+      customsounds.stop: true
