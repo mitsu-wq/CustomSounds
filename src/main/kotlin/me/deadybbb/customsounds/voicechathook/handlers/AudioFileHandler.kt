@@ -1,9 +1,12 @@
 package me.deadybbb.customsounds.voicechathook.handlers
 
+import javazoom.spi.mpeg.sampled.file.MpegAudioFileReader
+import javazoom.spi.mpeg.sampled.convert.MpegFormatConversionProvider
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import javax.sound.sampled.AudioFormat
+import javax.sound.sampled.AudioInputStream
 import javax.sound.sampled.AudioSystem
 import kotlin.io.path.extension
 
@@ -23,32 +26,36 @@ class AudioFileHandler(
     private fun convertFormat(file: Path): ByteArray {
         var pcmData: ByteArray
         val ext = file.extension
+        var finalInputStream: AudioInputStream
 
         when (ext) {
             "wav" -> {
                 handler.adapter.getLogger().info("Wav file: $file")
-                val finalInputStream = AudioSystem.getAudioInputStream(FORMAT, AudioSystem.getAudioInputStream(file.toFile()))
-                if (finalInputStream == null) {
-                    handler.adapter.getLogger().warning("Couldn't convert file: $file")
-                    throw IOException("Couldn't convert file: $file")
-                }
-                pcmData = finalInputStream.readAllBytes()
-                finalInputStream.close()
+                finalInputStream = AudioSystem.getAudioInputStream(FORMAT, AudioSystem.getAudioInputStream(file.toFile()))
             }
             "mp3" -> {
                 handler.adapter.getLogger().info("MP3 file: $file")
-                val mp3Decoder = handler.api.createMp3Decoder(Files.newInputStream(file))
-                if (mp3Decoder == null) {
-                    handler.adapter.getLogger().warning("Couldn't convert file: $file")
-                    throw IOException("Couldn't convert file: $file")
-                }
-                pcmData = handler.api.audioConverter.shortsToBytes(mp3Decoder.decode())
+                val audioInputStream = MpegAudioFileReader().getAudioInputStream(file.toFile())
+                val baseFormat = audioInputStream.format
+                val decodedFormat = AudioFormat(
+                    AudioFormat.Encoding.PCM_SIGNED, baseFormat.sampleRate, 16,
+                    baseFormat.channels, baseFormat.channels * 2, baseFormat.frameRate, false
+                )
+                val converted = MpegFormatConversionProvider().getAudioInputStream(decodedFormat, audioInputStream)
+                finalInputStream = AudioSystem.getAudioInputStream(FORMAT, converted)
             }
             else -> {
                 handler.adapter.getLogger().warning("Unknown file extension: $ext")
                 throw IOException("Unknown file extension: $ext")
             }
         }
+        if (finalInputStream == null) {
+            handler.adapter.getLogger().warning("Couldn't convert file: $file")
+            throw IOException("Couldn't convert file: $file")
+        }
+        pcmData = finalInputStream.readAllBytes()
+        finalInputStream.close()
+
         return pcmData
     }
 

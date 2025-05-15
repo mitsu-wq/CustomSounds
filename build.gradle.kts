@@ -21,6 +21,7 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT")
     compileOnly("de.maxhenkel.voicechat:voicechat-api:2.5.27")
     compileOnly("dev.jorel:commandapi-bukkit-core:10.0.1")
+    implementation("com.googlecode.soundlibs:mp3spi:1.9.5.4")
 }
 
 
