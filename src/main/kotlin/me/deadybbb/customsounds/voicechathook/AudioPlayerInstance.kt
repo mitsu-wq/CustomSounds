@@ -13,7 +13,7 @@ class AudioPlayerInstance(
     val player: ServerPlayer?,
     private val position: AudioPosition,
     private val volume: Double,
-    private val distance: Double,
+    private val distance: Double?,
     private val use3D: Boolean
 ) {
     val uuid: UUID = UUID.randomUUID()
@@ -38,6 +38,10 @@ class AudioPlayerInstance(
         try {
             val audioData = handler.audioFileHandler.readSoundFile(filePath, volume)
             val audioPlayer = if (use3D) {
+                if (distance == null) {
+                    handler.adapter.getLogger().warning("Distance is required to 3D audio: $filePath")
+                    return
+                }
                 handler.audioPlayerHandler.createLocationalAudioPlayer(uuid, position, audioData, distance)
             } else {
                 if (player == null) {

@@ -1,5 +1,4 @@
 * Rewrite volume system
-* Remove distance from static sound command
 * Add dir creation for musicdata
 * Add config with data dir
 * Add multiple players support

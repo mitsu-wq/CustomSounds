@@ -32,15 +32,13 @@ class CustomSoundsCommand(private val plugin: CustomSounds) {
                                 .toTypedArray()
                         }),
                         PlayerArgument("player"),
-                        DoubleArgument("volume").setOptional(true),
-                        DoubleArgument("distance").setOptional(true)
+                        DoubleArgument("volume").setOptional(true)
                     )
                     .withPermission("customsounds.play")
                     .executes(CommandExecutor { sender, args ->
                         val filename = args.get("filename") as String
                         val targetPlayer = args.get("player") as Player
                         val volume = args.get("volume") as? Double ?: DEFAULT_VOLUME
-                        val distance = args.get("distance") as? Double ?: DEFAULT_DISTANCE
 
                         try {
                             val position = AudioPosition(
@@ -55,7 +53,7 @@ class CustomSoundsCommand(private val plugin: CustomSounds) {
                                 player = plugin.hook.handler.api.fromServerPlayer(targetPlayer),
                                 position = position,
                                 volume = volume,
-                                distance = distance,
+                                distance = null,
                                 use3D = false
                             )
                             plugin.formatter.sendFormattedMessage(sender,"<green>Воспроизведение статического звука '$filename' для ${targetPlayer.name}")
@@ -102,7 +100,7 @@ class CustomSoundsCommand(private val plugin: CustomSounds) {
 
                             plugin.hook.playAudio(
                                 fileName = filename,
-                                player = null, // 3D-звук не привязан к игроку
+                                player = null,
                                 position = position,
                                 volume = volume,
                                 distance = distance,

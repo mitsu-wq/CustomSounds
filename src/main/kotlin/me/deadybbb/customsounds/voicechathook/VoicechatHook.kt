@@ -32,13 +32,13 @@ class VoicechatHook(private val adapter: ServerAdapter) : VoicechatPlugin {
         player: ServerPlayer?,
         position: AudioPosition,
         volume: Double,
-        distance: Double,
+        distance: Double?,
         use3D: Boolean
     ) {
         if (volume < 0.0 || volume > 1.0) {
             throw IllegalArgumentException("Volume must be between 0.0 and 1.0")
         }
-        if (distance < 0.0) {
+        if (distance != null && distance < 0.0) {
             throw IllegalArgumentException("Distance must be greater than 0.0")
         }
         if (!use3D && player == null) {
